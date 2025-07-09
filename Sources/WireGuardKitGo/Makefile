@@ -32,6 +32,9 @@ $(GOROOT)/.prepared:
 	rsync -a --delete --exclude=pkg/obj/go-build "$(REAL_GOROOT)/" "$(GOROOT)/"
 	cat goruntime-*.diff | patch -p1 -f -N -r- -d "$(GOROOT)"
 	touch "$@"
+	echo "$(ARCHS)"
+	echo "$(SDKROOT)"
+	echo "$(PLATFORM_NAME)"
 
 define libwg-go-a
 $(BUILDDIR)/libwg-go-$(1).a: export CGO_ENABLED := 1

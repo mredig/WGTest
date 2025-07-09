@@ -1,0 +1,1 @@
+rm -rf .tmp out; cat .env.ios | xargs make; otool -l out/libwg-go.a | if grep -A 5 LC_BUILD_VERSION | grep "platform 2" 2>/dev/null; then echo "good"; else echo "Bad"; fi
