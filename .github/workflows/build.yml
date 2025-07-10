@@ -76,5 +76,4 @@ jobs:
         with:
           files: WireGuardGoFoundation.xcframework.zip
           make_latest: true
-          target_commitish: ${{ steps.tag.outputs.TAG }}
           tag_name: ${{ steps.tag.outputs.TAG }}
