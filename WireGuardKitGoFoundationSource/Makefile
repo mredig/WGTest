@@ -55,10 +55,14 @@ REAL_GOROOT := $(shell go env GOROOT 2>/dev/null)
 export GOROOT := $(BUILDDIR)/goroot
 $(GOROOT)/.prepared:
 	[ -n "$(REAL_GOROOT)" ]
-	mkdir -p "$(GOROOT)"
+	@echo "BUILDDIR: $(BUILDDIR)"
+	@echo "GOROOT: $(GOROOT)"
+	@echo "CURDIR: $(CURDIR)"
+	@echo "PWD: $(PWD)"
+	mkdir -p "$(GOROOT)" "$(BUILDDIR)/tmp"
+	@ls -la "$(BUILDDIR)/tmp"
 	rsync -Dlprth --delete --exclude=pkg/obj/go-build "$(REAL_GOROOT)/" "$(GOROOT)/"
-	mkdir -p "$(BUILDDIR)/tmp"
-	cd "$(GOROOT)" && TMPDIR="$(BUILDDIR)/tmp" patch -p1 -f -N -r- < "$(CURDIR)/goruntime-boottime-over-monotonic.diff"
+	cd "$(GOROOT)" && export TMPDIR="$(BUILDDIR)/tmp" && patch -p1 -f -N -r- < "$(CURDIR)/goruntime-boottime-over-monotonic.diff"
 	touch "$@"
 
 
