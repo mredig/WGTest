@@ -1,5 +1,0 @@
-# ios
-rm -rf .tmp out; cat .env.ios | xargs make -f Makefile-xcode; otool -l out/libwg-go.a | if grep -A 5 LC_BUILD_VERSION | grep "platform 2" 2>/dev/null; then echo "good"; else echo "Bad"; fi
-
-# macos
-rm -rf .tmp out; make -f Makefile-xcode; otool -l out/libwg-go.a | if grep -A 5 LC_BUILD_VERSION | grep "platform 1" 2>/dev/null; then echo "good"; else echo "Bad"; fi
