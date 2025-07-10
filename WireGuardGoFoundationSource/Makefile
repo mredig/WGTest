@@ -62,10 +62,8 @@ $(GOROOT)/.prepared:
 	@echo "PWD: $(PWD)"
 	mkdir -p "$(GOROOT)"
 	rsync -Dlprth --delete --exclude=pkg/obj/go-build "$(REAL_GOROOT)/" "$(GOROOT)/"
-	ls -la "$(GOROOT)/src/runtime/"
 	chmod -R u+w "$(GOROOT)"
 	cd "$(GOROOT)" && git apply --reject --ignore-space-change --ignore-whitespace "$(CURDIR)/goruntime-boottime-over-monotonic.diff"
-	ls -la "$(GOROOT)/"
 	touch "$@"
 
 
