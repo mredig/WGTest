@@ -63,7 +63,7 @@ $(GOROOT)/.prepared:
 	mkdir -p "$(GOROOT)" "$(BUILDDIR)/tmp"
 	@ls -la "$(BUILDDIR)/tmp"
 	rsync -Dlprth --delete --exclude=pkg/obj/go-build "$(REAL_GOROOT)/" "$(GOROOT)/"
-	sudo chown -R $(USER) "$(BUILDDIR)"
+	chown -R $(USER) "$(BUILDDIR)"
 	cd "$(GOROOT)" && export TMPDIR="$(BUILDDIR)/tmp" && patch -p1 -f -N -r- < "$(CURDIR)/goruntime-boottime-over-monotonic.diff"
 	touch "$@"
 
@@ -127,6 +127,8 @@ $(XCFRAMEWORK_NAME): build ios-version-header macos-version-header
 		-library $(MACOS_DESTDIR)/libwg-go.a \
 		-headers wireguard.h \
 		-output "$(XCFRAMEWORK_NAME)"
+
+	git checkout wireguard.h
 
 
 # -- CLEANING
