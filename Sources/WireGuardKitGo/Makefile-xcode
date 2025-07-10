@@ -37,16 +37,16 @@ $(GOROOT)/.prepared:
 	echo "$(PLATFORM_NAME)"
 
 define libwg-go-a
-$(BUILDDIR)/libwg-go-$(1).a: export CGO_ENABLED := 1
-$(BUILDDIR)/libwg-go-$(1).a: export CGO_CFLAGS := $(CFLAGS_PREFIX) $(ARCH)
-$(BUILDDIR)/libwg-go-$(1).a: export CGO_LDFLAGS := $(CFLAGS_PREFIX) $(ARCH)
-$(BUILDDIR)/libwg-go-$(1).a: export GOOS := $(GOOS_$(PLATFORM_NAME))
-$(BUILDDIR)/libwg-go-$(1).a: export GOARCH := $(GOARCH_$(1))
-$(BUILDDIR)/libwg-go-$(1).a: $(GOROOT)/.prepared go.mod
-	go build -ldflags=-w -trimpath -v -o "$(BUILDDIR)/libwg-go-$(1).a" -buildmode c-archive
-	rm -f "$(BUILDDIR)/libwg-go-$(1).h"
+$(BUILDDIR)/libwg-go-$(ARCH).a: export CGO_ENABLED := 1
+$(BUILDDIR)/libwg-go-$(ARCH).a: export CGO_CFLAGS := $(CFLAGS_PREFIX) $(ARCH)
+$(BUILDDIR)/libwg-go-$(ARCH).a: export CGO_LDFLAGS := $(CFLAGS_PREFIX) $(ARCH)
+$(BUILDDIR)/libwg-go-$(ARCH).a: export GOOS := $(GOOS_$(PLATFORM_NAME))
+$(BUILDDIR)/libwg-go-$(ARCH).a: export GOARCH := $(GOARCH_$(ARCH))
+$(BUILDDIR)/libwg-go-$(ARCH).a: $(GOROOT)/.prepared go.mod
+	go build -ldflags=-w -trimpath -v -o "$(BUILDDIR)/libwg-go-$(ARCH).a" -buildmode c-archive
+	rm -f "$(BUILDDIR)/libwg-go-$(ARCH).h"
 endef
-$(foreach ARCH,$(ARCHS),$(eval $(call libwg-go-a,$(ARCH))))
+$(foreach ARCH,$(ARCHS),$(eval $(call libwg-go-a)))
 
 $(DESTDIR)/wireguard-go-version.h: go.mod $(GOROOT)/.prepared
 	 sed -E -n 's/.*golang\.zx2c4\.com\/wireguard +v[0-9.]+-[0-9]+-([0-9a-f]{8})[0-9a-f]{4}.*/#define WIREGUARD_GO_VERSION "\1"/p' "$<" > "$@"
@@ -60,4 +60,8 @@ clean:
 
 install: build
 
-.PHONY: clean build version-header install
+debug:
+	@echo "ARCHS: $(ARCHS)"
+	@echo "Generated Targets: $(foreach ARCH,$(ARCHS),$(BUILDDIR)/libwg-go-$(ARCH).a)"
+
+.PHONY: clean build version-header install debug
