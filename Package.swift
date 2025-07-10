@@ -3,6 +3,9 @@
 
 import PackageDescription
 
+let url = ""
+let checksum = ""
+
 let package = Package(
     name: "WireGuardKit",
     platforms: [
@@ -10,31 +13,19 @@ let package = Package(
         .iOS(.v16)
     ],
     products: [
-        .library(name: "WireGuardKit", targets: ["WireGuardKit"])
+		.library(name: "WireGuardKit", targets: ["WireGuardKit"]),
     ],
     dependencies: [],
     targets: [
         .target(
             name: "WireGuardKit",
-            dependencies: ["WireGuardKitGo", "WireGuardKitC"]
+            dependencies: ["WireGuardGoFoundation", "WireGuardKitC"]
         ),
         .target(
             name: "WireGuardKitC",
             dependencies: [],
             publicHeadersPath: "."
         ),
-        .target(
-            name: "WireGuardKitGo",
-            dependencies: [],
-            exclude: [
-                "goruntime-boottime-over-monotonic.diff",
-                "go.mod",
-                "go.sum",
-                "api-apple.go",
-                "Makefile"
-            ],
-            publicHeadersPath: ".",
-            linkerSettings: [.linkedLibrary("wg-go")]
-        )
+		.binaryTarget(name: "WireGuardGoFoundation", url: url, checksum: checksum)
     ]
 )

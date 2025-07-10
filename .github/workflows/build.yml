@@ -1,0 +1,57 @@
+name: Build and Release All Destinations
+
+on:
+  # push:
+  #   tags:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release'
+        required: true
+        default: 'v0.0.0'
+
+jobs:
+  build:
+    name: Build and Release XCFramework
+    runs-on: macos-15
+    if: github.ref_type == 'tag'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: Install Dependencies
+        run: |
+          brew install swiftlint go
+
+      - name: Build XCFramework
+        run: |
+          set -xoe
+
+          cd WireGuardKitGoFoundationSource
+          make build-xcframework
+
+          zip -ry WireGuardGoFoundation.xcframework.zip WireGuardGoFoundation.xcframework
+
+      - name: Update Package
+        run: |
+          set -xoe
+
+          CHECKSUM=$(swift package compute-checksum WireGuardGoFoundation.xcframework.zip)
+          NEW_URL="https://github.com/${{ github.repository_owner }}/WGTest/releases/download/${{ github.event.inputs.version }}/WireGuardGoFoundation.xcframework.zip"
+
+          sed -i "" "s|let url = \".*\"|let url = \"$NEW_URL\"|" Package.swift
+          sed -i "" "s|let checksum = \".*\"|let checksum = \"$CHECKSUM\"|" Package.swift
+
+          git add Package.swift
+          git commit -m "Release ${{ github.event.inputs.version }}"
+          git push
+          git tag ${{ github.event.inputs.version }}
+          git push origin ${{ github.event.inputs.version }}
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: WireGuardGoFoundation.xcframework.zip
+          make_latest: true
+          target_commitish: ${{ github.event.inputs.version }}
