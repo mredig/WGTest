@@ -10,11 +10,14 @@ on:
         required: true
         default: 'v0.0.0'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build and Release XCFramework
     runs-on: macos-15
-    if: github.ref_type == 'tag'
+    # if: github.ref_type == 'tag'
 
     steps:
       - name: Checkout
