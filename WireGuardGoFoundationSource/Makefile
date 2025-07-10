@@ -115,19 +115,19 @@ $(eval $(call linkinator,$(IOS_SIM_DESTDIR),$(IOS_SIM_ARCHS),$(IOS_SIM_PLATFORM_
 # -- XCFRAMEWORK COMPILING
 
 $(XCFRAMEWORK_NAME): build ios-version-header macos-version-header
-	git checkout wireguard.h
-	cat "$(IOS_DESTDIR)/wireguard-go-version.h" >> wireguard.h
+	git checkout Headers/wireguard.h
+	cat "$(IOS_DESTDIR)/wireguard-go-version.h" >> Headers/wireguard.h
 
 	xcrun xcodebuild -create-xcframework \
 		-library $(IOS_DESTDIR)/libwg-go.a \
-		-headers wireguard.h \
+		-headers Headers/ \
 		-library $(IOS_SIM_DESTDIR)/libwg-go.a \
-		-headers wireguard.h \
+		-headers Headers/ \
 		-library $(MACOS_DESTDIR)/libwg-go.a \
-		-headers wireguard.h \
+		-headers Headers/ \
 		-output "$(XCFRAMEWORK_NAME)"
 
-	git checkout wireguard.h
+	git checkout Headers/wireguard.h
 
 
 # -- CLEANING
