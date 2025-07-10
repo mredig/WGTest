@@ -57,7 +57,8 @@ $(GOROOT)/.prepared:
 	[ -n "$(REAL_GOROOT)" ]
 	mkdir -p "$(GOROOT)"
 	rsync -Dlprtvh --delete --exclude=pkg/obj/go-build "$(REAL_GOROOT)/" "$(GOROOT)/"
-	TMPDIR="$(BUILDDIR)/tmp" mkdir -p "$(BUILDDIR)/tmp" && cat goruntime-*.diff | patch -p1 -f -N -r- -d "$(GOROOT)"
+	mkdir -p "$(BUILDDIR)/tmp"
+	env TMPDIR="$(BUILDDIR)/tmp" cat goruntime-*.diff | patch -p1 -f -N -r- -d "$(GOROOT)"
 	touch "$@"
 
 
