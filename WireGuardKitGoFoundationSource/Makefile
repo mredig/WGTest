@@ -56,7 +56,7 @@ export GOROOT := $(BUILDDIR)/goroot
 $(GOROOT)/.prepared:
 	[ -n "$(REAL_GOROOT)" ]
 	mkdir -p "$(GOROOT)"
-	rsync -Dlprtvh --delete --exclude=pkg/obj/go-build "$(REAL_GOROOT)/" "$(GOROOT)/"
+	rsync -Dlprth --delete --exclude=pkg/obj/go-build "$(REAL_GOROOT)/" "$(GOROOT)/"
 	mkdir -p "$(BUILDDIR)/tmp"
 	env TMPDIR="$(BUILDDIR)/tmp" cat goruntime-*.diff | patch -p1 -f -N -r- -d "$(GOROOT)"
 	touch "$@"
