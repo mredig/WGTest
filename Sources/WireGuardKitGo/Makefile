@@ -44,11 +44,11 @@ GOOS_iphoneos := ios
 
 # -- CONVENIENCE
 
-macos-build: $(MACOS_DESTDIR)/libwg-go.a
-ios-build: $(IOS_DESTDIR)/libwg-go.a $(IOS_SIM_DESTDIR)/libwg-go.a
 macos-version-header: $(MACOS_DESTDIR)/wireguard-go-version.h
 ios-version-header: $(IOS_DESTDIR)/wireguard-go-version.h $(IOS_SIM_DESTDIR)/wireguard-go-version.h 
-build: $(IOS_DESTDIR)/libwg-go.a $(MACOS_DESTDIR)/libwg-go.a $(IOS_SIM_DESTDIR)/libwg-go.a
+macos-build: $(MACOS_DESTDIR)/libwg-go.a macos-version-header
+ios-build: $(IOS_DESTDIR)/libwg-go.a $(IOS_SIM_DESTDIR)/libwg-go.a ios-version-header
+build: macos-build ios-build
 build-xcframework: $(XCFRAMEWORK_NAME)
 
 REAL_GOROOT := $(shell go env GOROOT 2>/dev/null)
@@ -85,14 +85,12 @@ $(foreach ARCH,$(IOS_SIM_ARCHS),$(eval $(call libwg-go-a,$(ARCH),$(IOS_SIM_CFLAG
 # -- HEADERS STUFF
 
 # DESTDIR: $(1)
-define headerthing
-$(1)/wireguard-go-version.h: go.mod $(GOROOT)/.prepared
-	 sed -E -n 's/.*golang\.zx2c4\.com\/wireguard +v[0-9.]+-[0-9]+-([0-9a-f]{8})[0-9a-f]{4}.*/#define WIREGUARD_GO_VERSION "\1"/p' "$<" > "$@"
-endef
-$(call headerthing,$(MACOS_DESTDIR))
-$(call headerthing,$(IOS_DESTDIR))
-$(call headerthing,$(IOS_SIM_DESTDIR))
-
+$(MACOS_DESTDIR)/wireguard-go-version.h: go.mod $(GOROOT)/.prepared
+	sed -E -n 's/.*golang\.zx2c4\.com\/wireguard +v[0-9.]+-([0-9]+-[0-9a-f]{8})[0-9a-f]{4}.*/#define WIREGUARD_GO_VERSION "\1"/p' "$<" > "$@"
+$(IOS_DESTDIR)/wireguard-go-version.h: go.mod $(GOROOT)/.prepared
+	sed -E -n 's/.*golang\.zx2c4\.com\/wireguard +v[0-9.]+-([0-9]+-[0-9a-f]{8})[0-9a-f]{4}.*/#define WIREGUARD_GO_VERSION "\1"/p' "$<" > "$@"
+$(IOS_SIM_DESTDIR)/wireguard-go-version.h: go.mod $(GOROOT)/.prepared
+	sed -E -n 's/.*golang\.zx2c4\.com\/wireguard +v[0-9.]+-([0-9]+-[0-9a-f]{8})[0-9a-f]{4}.*/#define WIREGUARD_GO_VERSION "\1"/p' "$<" > "$@"
 
 # -- LINKING
 
@@ -110,13 +108,16 @@ $(eval $(call linkinator,$(IOS_SIM_DESTDIR),$(IOS_SIM_ARCHS),$(IOS_SIM_PLATFORM_
 
 # -- XCFRAMEWORK COMPILING
 
-$(XCFRAMEWORK_NAME): macos-build ios-build
+$(XCFRAMEWORK_NAME): build ios-version-header macos-version-header
+	git checkout wireguard.h
+	cat "$(IOS_DESTDIR)/wireguard-go-version.h" >> wireguard.h
+
 	xcrun xcodebuild -create-xcframework \
-		-library out-ios/libwg-go.a \
+		-library $(IOS_DESTDIR)/libwg-go.a \
 		-headers wireguard.h \
-		-library out-ios-sim/libwg-go.a \
+		-library $(IOS_SIM_DESTDIR)/libwg-go.a \
 		-headers wireguard.h \
-		-library out-macos/libwg-go.a \
+		-library $(MACOS_DESTDIR)/libwg-go.a \
 		-headers wireguard.h \
 		-output "$(XCFRAMEWORK_NAME)"
 
