@@ -14,6 +14,8 @@ MACOS_CONFIGURATION_BUILD_DIR ?= $(CURDIR)/out-macos
 IOS_CONFIGURATION_BUILD_DIR ?= $(CURDIR)/out-ios
 IOS_SIM_CONFIGURATION_BUILD_DIR ?= $(CURDIR)/out-ios-sim
 CONFIGURATION_TEMP_DIR ?= $(CURDIR)/.tmp
+XCFRAMEWORK_BASENAME = WireGuardGoFoundation
+XCFRAMEWORK_NAME = $(XCFRAMEWORK_BASENAME).xcframework
 
 define get_sdkroot
 $(shell xcrun --sdk $(1) --show-sdk-path)
@@ -47,6 +49,7 @@ ios-build: $(IOS_DESTDIR)/libwg-go.a $(IOS_SIM_DESTDIR)/libwg-go.a
 macos-version-header: $(MACOS_DESTDIR)/wireguard-go-version.h
 ios-version-header: $(IOS_DESTDIR)/wireguard-go-version.h $(IOS_SIM_DESTDIR)/wireguard-go-version.h 
 build: $(IOS_DESTDIR)/libwg-go.a $(MACOS_DESTDIR)/libwg-go.a $(IOS_SIM_DESTDIR)/libwg-go.a
+build-xcframework: $(XCFRAMEWORK_NAME)
 
 REAL_GOROOT := $(shell go env GOROOT 2>/dev/null)
 export GOROOT := $(BUILDDIR)/goroot
@@ -105,6 +108,19 @@ $(eval $(call linkinator,$(IOS_DESTDIR),$(IOS_ARCHS),$(IOS_PLATFORM_NAME)))
 $(eval $(call linkinator,$(IOS_SIM_DESTDIR),$(IOS_SIM_ARCHS),$(IOS_SIM_PLATFORM_NAME)))
 
 
+# -- XCFRAMEWORK COMPILING
+
+$(XCFRAMEWORK_NAME): macos-build ios-build
+	xcrun xcodebuild -create-xcframework \
+		-library out-ios/libwg-go.a \
+		-headers wireguard.h \
+		-library out-ios-sim/libwg-go.a \
+		-headers wireguard.h \
+		-library out-macos/libwg-go.a \
+		-headers wireguard.h \
+		-output "$(XCFRAMEWORK_NAME)"
+
+
 # -- CLEANING
 
 # BUILDDIR: $(1) DESTDIR: $(2)
@@ -116,6 +132,7 @@ clean:
 	$(call clean-output,$(BUILDDIR),$(MACOS_DESTDIR))
 	$(call clean-output,$(BUILDDIR),$(IOS_DESTDIR))
 	$(call clean-output,$(BUILDDIR),$(IOS_SIM_DESTDIR))
+	rm -rf "$(XCFRAMEWORK_NAME)"
 
 install-macos: macos-build
 install-ios: ios-build
