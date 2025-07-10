@@ -62,9 +62,9 @@ $(GOROOT)/.prepared:
 	@echo "PWD: $(PWD)"
 	mkdir -p "$(GOROOT)" "$(BUILDDIR)/tmp"
 	@ls -la "$(BUILDDIR)/tmp"
-	rsync -Dlprth --delete --exclude=pkg/obj/go-build "$(REAL_GOROOT)/" "$(GOROOT)/"
-	chown -R $(USER) "$(BUILDDIR)"
+	rsync -Dlprth --delete --exclude=pkg/obj/go-build --chmod=u+w "$(REAL_GOROOT)/" "$(GOROOT)/"
 	cd "$(GOROOT)" && export TMPDIR="$(BUILDDIR)/tmp" && patch -p1 -f -N -r- < "$(CURDIR)/goruntime-boottime-over-monotonic.diff"
+	@ls -la "$(GOROOT)/"
 	touch "$@"
 
 
