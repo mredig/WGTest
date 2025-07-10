@@ -16,6 +16,7 @@ IOS_SIM_CONFIGURATION_BUILD_DIR ?= $(CURDIR)/out-ios-sim
 CONFIGURATION_TEMP_DIR ?= $(CURDIR)/.tmp
 XCFRAMEWORK_BASENAME = WireGuardGoFoundation
 XCFRAMEWORK_NAME = $(XCFRAMEWORK_BASENAME).xcframework
+USER := $(shell whoami)
 
 define get_sdkroot
 $(shell xcrun --sdk $(1) --show-sdk-path)
@@ -62,7 +63,7 @@ $(GOROOT)/.prepared:
 	mkdir -p "$(GOROOT)" "$(BUILDDIR)/tmp"
 	@ls -la "$(BUILDDIR)/tmp"
 	rsync -Dlprth --delete --exclude=pkg/obj/go-build "$(REAL_GOROOT)/" "$(GOROOT)/"
-	sudo chown -R $(whoami) "$(BUILDDIR)"
+	sudo chown -R $(USER) "$(BUILDDIR)"
 	cd "$(GOROOT)" && export TMPDIR="$(BUILDDIR)/tmp" && sudo patch -p1 -f -N -r- < "$(CURDIR)/goruntime-boottime-over-monotonic.diff"
 	touch "$@"
 
