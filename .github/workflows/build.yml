@@ -1,7 +1,7 @@
 name: Build and Release All Destinations
 
 on:
-  # push:
+  push:
   #   tags:
   workflow_dispatch:
     inputs:
