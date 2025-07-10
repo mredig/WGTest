@@ -27,6 +27,20 @@ jobs:
         run: |
           brew install go
 
+      - name: Determine Tag
+        id: tag
+        run: |
+          INPUT_TAG=${{ github.event.inputs.version }}
+          DATE=$(date -Idate -Iseconds)
+
+          if [[ -n $INPUT_TAG ]]; then
+            OUT=$INPUT_TAG
+          else
+            OUT=$DATE
+          fi
+
+          echo "TAG=$OUT" >> "${GITHUB_OUTPUT}"
+
       - name: Build XCFramework
         run: |
           set -xoe
@@ -49,14 +63,17 @@ jobs:
           sed -i "" "s|let checksum = \".*\"|let checksum = \"$CHECKSUM\"|" Package.swift
 
           git add Package.swift
-          git commit -m "Release ${{ github.event.inputs.version }}"
+          git commit -m "Release ${TAG}"
           git push
-          git tag ${{ github.event.inputs.version }}
-          git push origin ${{ github.event.inputs.version }}
+          git tag ${TAG}
+          git push origin ${TAG}
+        env:
+          TAG: ${{ steps.tag.outputs.TAG }}
+
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: WireGuardGoFoundation.xcframework.zip
           make_latest: true
-          target_commitish: ${{ github.event.inputs.version }}
+          target_commitish: ${{ steps.tag.outputs.TAG }}
