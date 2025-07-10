@@ -31,12 +31,12 @@ jobs:
         run: |
           set -xoe
 
-          pushd WireGuardKitGoFoundationSource
+          pushd WireGuardGoFoundationSource
           make build-xcframework
 
           zip -ry WireGuardGoFoundation.xcframework.zip WireGuardGoFoundation.xcframework
           popd
-          mv WireGuardKitGoFoundationSource/WireGuardGoFoundation.xcframework.zip .
+          mv WireGuardGoFoundationSource/WireGuardGoFoundation.xcframework.zip .
 
       - name: Update Package
         run: |
