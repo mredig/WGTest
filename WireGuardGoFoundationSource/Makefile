@@ -61,10 +61,14 @@ $(GOROOT)/.prepared:
 	@echo "CURDIR: $(CURDIR)"
 	@echo "PWD: $(PWD)"
 	mkdir -p "$(GOROOT)" "$(BUILDDIR)/tmp"
-	@ls -la "$(BUILDDIR)/tmp"
+	ls -la "$(BUILDDIR)/tmp"
 	rsync -Dlprth --delete --exclude=pkg/obj/go-build --chmod=u+w "$(REAL_GOROOT)/" "$(GOROOT)/"
+	ls -la "$(GOROOT)/src/runtime/"
+
+	@touch "$(BUILDDIR)/tmp/test-write" && echo "Write test passed"
+	ls -la "$(BUILDDIR)/tmp"
 	cd "$(GOROOT)" && export TMPDIR="$(BUILDDIR)/tmp" && patch -p1 -f -N -r- < "$(CURDIR)/goruntime-boottime-over-monotonic.diff"
-	@ls -la "$(GOROOT)/"
+	ls -la "$(GOROOT)/"
 	touch "$@"
 
 
@@ -78,7 +82,7 @@ $(BUILDDIR)/libwg-go-$(3)-$(1).a: export CGO_LDFLAGS := $(2) $(1)
 $(BUILDDIR)/libwg-go-$(3)-$(1).a: export GOOS := $(GOOS_$(3))
 $(BUILDDIR)/libwg-go-$(3)-$(1).a: export GOARCH := $(GOARCH_$(1))
 $(BUILDDIR)/libwg-go-$(3)-$(1).a: $(GOROOT)/.prepared go.mod
-	echo "🟨🟨🟨🟨🟨 building $(3) $(1) 🟨🟨🟨🟨🟨"
+	@echo "🟨🟨🟨🟨🟨 building $(3) $(1) 🟨🟨🟨🟨🟨"
 	$(info 'target 🎯: $(3) $(1)')
 	go build -ldflags=-w -trimpath -v -o "$(BUILDDIR)/libwg-go-$(3)-$(1).a" -buildmode c-archive
 	rm -f "$(BUILDDIR)/libwg-go-$(1).h"
