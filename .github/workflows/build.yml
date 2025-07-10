@@ -31,7 +31,7 @@ jobs:
         id: tag
         run: |
           INPUT_TAG=${{ github.event.inputs.version }}
-          DATE=$(date -Idate -Iseconds)
+          DATE=$(date -Idate -Iseconds | perl -pe 's/T/_/' | perl -pe 's/[^0-9\s_]/-/g')
 
           if [[ -n $INPUT_TAG ]]; then
             OUT=$INPUT_TAG
