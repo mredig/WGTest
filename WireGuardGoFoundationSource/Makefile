@@ -133,7 +133,7 @@ $(XCFRAMEWORK_NAME): build ios-version-header macos-version-header
 
 # BUILDDIR: $(1) DESTDIR: $(2)
 define clean-output
-rm -rf "$(1)" "$(2)/libwg-go.a" "$(2)/wireguard-go-version.h"
+rm -rf "$(1)" "$(2)"
 endef
 
 clean:
