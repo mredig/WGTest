@@ -57,6 +57,7 @@ $(GOROOT)/.prepared:
 	cat goruntime-*.diff | patch -p1 -f -N -r- -d "$(GOROOT)"
 	touch "$@"
 
+
 # -- COMPILING
 
 # ARCH-$(1) CFLAGS_PREFIX-$(2)  PLATFORM_NAME-$(3)
@@ -77,14 +78,18 @@ $(foreach ARCH,$(MACOS_ARCHS),$(eval $(call libwg-go-a,$(ARCH),$(MACOS_CFLAGS_PR
 $(foreach ARCH,$(IOS_ARCHS),$(eval $(call libwg-go-a,$(ARCH),$(IOS_CFLAGS_PREFIX),$(IOS_PLATFORM_NAME))))
 $(foreach ARCH,$(IOS_SIM_ARCHS),$(eval $(call libwg-go-a,$(ARCH),$(IOS_SIM_CFLAGS_PREFIX),$(IOS_SIM_PLATFORM_NAME))))
 
+
 # -- HEADERS STUFF
 
-$(MACOS_DESTDIR)/wireguard-go-version.h: go.mod $(GOROOT)/.prepared
+# DESTDIR: $(1)
+define headerthing
+$(1)/wireguard-go-version.h: go.mod $(GOROOT)/.prepared
 	 sed -E -n 's/.*golang\.zx2c4\.com\/wireguard +v[0-9.]+-[0-9]+-([0-9a-f]{8})[0-9a-f]{4}.*/#define WIREGUARD_GO_VERSION "\1"/p' "$<" > "$@"
-$(IOS_DESTDIR)/wireguard-go-version.h: go.mod $(GOROOT)/.prepared
-	 sed -E -n 's/.*golang\.zx2c4\.com\/wireguard +v[0-9.]+-[0-9]+-([0-9a-f]{8})[0-9a-f]{4}.*/#define WIREGUARD_GO_VERSION "\1"/p' "$<" > "$@"
-$(IOS_SIM_DESTDIR)/wireguard-go-version.h: go.mod $(GOROOT)/.prepared
-	 sed -E -n 's/.*golang\.zx2c4\.com\/wireguard +v[0-9.]+-[0-9]+-([0-9a-f]{8})[0-9a-f]{4}.*/#define WIREGUARD_GO_VERSION "\1"/p' "$<" > "$@"
+endef
+$(call headerthing,$(MACOS_DESTDIR))
+$(call headerthing,$(IOS_DESTDIR))
+$(call headerthing,$(IOS_SIM_DESTDIR))
+
 
 # -- LINKING
 
@@ -99,8 +104,10 @@ $(eval $(call linkinator,$(MACOS_DESTDIR),$(MACOS_ARCHS),$(MACOS_PLATFORM_NAME))
 $(eval $(call linkinator,$(IOS_DESTDIR),$(IOS_ARCHS),$(IOS_PLATFORM_NAME)))
 $(eval $(call linkinator,$(IOS_SIM_DESTDIR),$(IOS_SIM_ARCHS),$(IOS_SIM_PLATFORM_NAME)))
 
+
 # -- CLEANING
 
+# BUILDDIR: $(1) DESTDIR: $(2)
 define clean-output
 rm -rf "$(1)" "$(2)/libwg-go.a" "$(2)/wireguard-go-version.h"
 endef
