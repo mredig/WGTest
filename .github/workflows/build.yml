@@ -57,7 +57,7 @@ jobs:
           set -xoe
 
           CHECKSUM=$(swift package compute-checksum WireGuardGoFoundation.xcframework.zip)
-          NEW_URL="https://github.com/${{ github.repository_owner }}/WGTest/releases/download/${TAG}/WireGuardGoFoundation.xcframework.zip"
+          NEW_URL="https://github.com/${{ github.repository }}/releases/download/${TAG}/WireGuardGoFoundation.xcframework.zip"
 
           sed -i "" "s|let url = \".*\"|let url = \"$NEW_URL\"|" Package.swift
           sed -i "" "s|let checksum = \".*\"|let checksum = \"$CHECKSUM\"|" Package.swift
