@@ -4,7 +4,7 @@
 import PackageDescription
 
 let url = "https://github.com/mredig/WGTest/releases/download//WireGuardGoFoundation.xcframework.zip"
-let checksum = "520172524ae0d42101d4d13b73ebac08bb7318f0ce9c17b29584a7ad8982df54"
+let checksum = "a40d887d0c07c32ca4236bf6d0bd6aeeaf30483e48f8c025a88800bfd82eedcd"
 
 let package = Package(
     name: "WireGuardKit",
