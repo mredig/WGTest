@@ -88,17 +88,16 @@ $(IOS_SIM_DESTDIR)/wireguard-go-version.h: go.mod $(GOROOT)/.prepared
 
 # -- LINKING
 
-$(MACOS_DESTDIR)/libwg-go.a: $(foreach ARCH,$(MACOS_ARCHS),$(BUILDDIR)/libwg-go-$(MACOS_PLATFORM_NAME)-$(ARCH).a)
-	@mkdir -vp "$(MACOS_DESTDIR)"
-	$(LIPO) -create -output "$@" $^
+# DESTDIR: $(1) ARCHS: $(2) PLATFORM_NAME: $(3)
+define linkinator
+$(1)/libwg-go.a: $(foreach ARCH,$(2),$(BUILDDIR)/libwg-go-$(3)-$(ARCH).a)
+	@mkdir -vp "$(1)"
+	$(LIPO) -create -output "$$@" $$^
+endef
 
-$(IOS_DESTDIR)/libwg-go.a: $(foreach ARCH,$(IOS_ARCHS),$(BUILDDIR)/libwg-go-$(IOS_PLATFORM_NAME)-$(ARCH).a)
-	@mkdir -vp "$(IOS_DESTDIR)"
-	$(LIPO) -create -output "$@" $^
-
-$(IOS_SIM_DESTDIR)/libwg-go.a: $(foreach ARCH,$(IOS_SIM_ARCHS),$(BUILDDIR)/libwg-go-$(IOS_SIM_PLATFORM_NAME)-$(ARCH).a)
-	@mkdir -vp "$(IOS_SIM_DESTDIR)"
-	$(LIPO) -create -output "$@" $^
+$(eval $(call linkinator,$(MACOS_DESTDIR),$(MACOS_ARCHS),$(MACOS_PLATFORM_NAME)))
+$(eval $(call linkinator,$(IOS_DESTDIR),$(IOS_ARCHS),$(IOS_PLATFORM_NAME)))
+$(eval $(call linkinator,$(IOS_SIM_DESTDIR),$(IOS_SIM_ARCHS),$(IOS_SIM_PLATFORM_NAME)))
 
 # -- CLEANING
 
