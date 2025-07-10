@@ -58,7 +58,7 @@ $(GOROOT)/.prepared:
 	mkdir -p "$(GOROOT)"
 	rsync -Dlprth --delete --exclude=pkg/obj/go-build "$(REAL_GOROOT)/" "$(GOROOT)/"
 	mkdir -p "$(BUILDDIR)/tmp"
-	env TMPDIR="$(BUILDDIR)/tmp" cat goruntime-*.diff | patch -p1 -f -N -r- -d "$(GOROOT)"
+	cd "$(GOROOT)" && TMPDIR="$(BUILDDIR)/tmp" patch -p1 -f -N -r- < "$(CURDIR)/goruntime-boottime-over-monotonic.diff"
 	touch "$@"
 
 
